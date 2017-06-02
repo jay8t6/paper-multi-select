@@ -19,9 +19,18 @@
     <div class="vertical-section-container centered">
       <h3>Basic paper-multi-select demo</h3>
       <demo-snippet>
-        <template>
+        <template is="dom-bind">
           <paper-multi-select
-            chips='["Luffy", "Zoro", "Sanji", "Nami", "Ussop", "Robin", "Brook", "Chopper", "Franky"]'
+            chips='[
+              {"id": 1, "value": "Luffy"},
+              {"id": 2, "value": "Zoro"},
+              {"id": 3, "value": "Sanji"},
+              {"id": 4, "value": "Nami"},
+              {"id": 5, "value": "Ussop"},
+              {"id": 6, "value": "Robin"},
+              {"id": 7, "value": "Brook"},
+              {"id": 8, "value": "Chopper"},
+              {"id": 9, "value": "Franky"}]'
             label="Favorite characters">
           </paper-multi-select>
         </template>

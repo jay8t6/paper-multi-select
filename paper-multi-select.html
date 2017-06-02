@@ -24,7 +24,6 @@ the form. Populates the `paper-input` based on searchable selection of options u
 `--paper-multi-select` | Mixin to style the host element | `{}`
 `--paper-multi-select-checkbox` | Mixin to style the checkbox | `{}`
 `--paper-multi-select-info` | Mixin to style the info container | `{}`
-`--paper-multi-select-more-text` | Mixin to style the more text | `{}`
 `--paper-multi-select-disabled-text` | Mixin to style the disabled more text | `{}`
 `--paper-multi-select-dialog` | Mixin to style the dialog | `{}`
 `--paper-multi-select-dialog-elements` | Mixin to style all the elements within paper-dialog | `{}`
@@ -56,16 +55,10 @@ the form. Populates the `paper-input` based on searchable selection of options u
       @apply(--paper-multi-select-checkbox);
     }
 
-    #info {
+    .info {
       cursor: pointer;
       font-size: 12px;
       @apply(--paper-multi-select-info);
-    }
-
-    #info #moreString {
-      color: var(--paper-green-500);
-      text-decoration: underline;
-      @apply(--paper-multi-select-more-text);
     }
 
     span[disabled] {
@@ -73,7 +66,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
       @apply(--paper-multi-select-disabled-text);
     }
 
-    #dialog {
+    .dialog {
       --paper-dialog-color: var(--paper-green-900);
       --paper-dialog-button-color: var(--paper-green-900);
       max-width: 700px;
@@ -126,12 +119,12 @@ the form. Populates the `paper-input` based on searchable selection of options u
       on-tap="trigger">
       <iron-icon icon="more-horiz" suffix></iron-icon>
     </paper-input>
-    <span disabled$="[[disabled]]" id="info" on-tap="trigger">
+    <span disabled$="[[disabled]]" class="info" on-tap="trigger">
       <span class="lead-string" inner-h-t-m-l="[[_leadString]]"></span>
       <span class="more-string" inner-h-t-m-l="[[_moreString]]"></span>
     </span>
 
-    <paper-dialog id="dialog">
+    <paper-dialog id="dialog" class="dialog">
       <paper-input
         id="search-item"
         label="Choose {{label}}"
@@ -146,7 +139,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
             on-change="_toggleItemState"
             value="{{item}}"
             checked="{{_fetchState(item)}}">
-            {{item}}
+            {{item.value}}
           </paper-checkbox>
         </template>
       </paper-dialog-scrollable>
@@ -243,7 +236,11 @@ the form. Populates the `paper-input` based on searchable selection of options u
        * @private
        */
       _setItemLabel(selected) {
-        this.selectedItemLabel = selected.join(', ');
+        const selectedArray = [];
+        for(const item of selected) {
+          selectedArray.push(item.value);
+        }
+        this.selectedItemLabel = selectedArray.join(', ');
       },
 
       /**
@@ -275,14 +272,14 @@ the form. Populates the `paper-input` based on searchable selection of options u
             return false;
           }
 
-          const arr = Object.keys(this.state).filter(x => x === item);
+          const arr = Object.keys(this.state).filter(x => x === item.id);
 
           if (arr.length > 0) {
             return true;
           }
 
           val = val.toLowerCase();
-          item = item.toLowerCase();
+          item = item.value.toLowerCase();
           return (item && item.indexOf(val) !== -1);
         }.bind(this);
       },
@@ -294,9 +291,9 @@ the form. Populates the `paper-input` based on searchable selection of options u
        */
       _toggleItemState(e) {
         if (e.target.checked) {
-          this.state[e.target.value] = 1;
+          this.state[e.target.value.id] = 1;
         } else {
-          delete this.state[e.target.value];
+          delete this.state[e.target.value.id];
         }
       },
 
@@ -325,6 +322,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
         for (const chip of selectedChips) {
           this.push('selectedItems', chip.value);
         }
+        this.fire('item-updated');
       },
 
       _isItemChecked(item) {
@@ -341,7 +339,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
         if (totalItems === 0) return;
         const leadClues = [];
         for (const [index, item] of items.entries()) {
-          leadClues.push(item.value);
+          leadClues.push(item.value.value);
           if (index === 1) {
             break;
           }
@@ -356,6 +354,10 @@ the form. Populates the `paper-input` based on searchable selection of options u
           this._moreString = ' have been selected';
         }
       }
+      /**
+       * Fired after the update button is clicked.
+       * @event item-updated
+       */
     });
   </script>
 </dom-module>
