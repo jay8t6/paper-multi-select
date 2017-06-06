@@ -111,7 +111,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
       invalid="[[invalid]]"
       readonly
       disabled="[[disabled]]"
-      value="[[selectedItemLabel]]"
+      value="[[__selectedItemLabel]]"
       placeholder="[[placeholder]]"
       error-message="[[errorMessage]]"
       always-float-label="[[alwaysFloatLabel]]"
@@ -122,7 +122,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
     </paper-input>
 
     <paper-chips
-      items="{{_selectedChips}}"
+      items="{{selectedItems}}"
       on-delete-item="_handleDeletedChip">
     </paper-chips>
 
@@ -137,11 +137,12 @@ the form. Populates the `paper-input` based on searchable selection of options u
       <paper-dialog-scrollable>
         <template is="dom-repeat" items="{{chips}}" filter="{{_filter(filterVal)}}">
           <paper-checkbox
-            class="chip"
+            id="[[item.id]]"
             on-change="_toggleItemState"
-            value="{{item}}"
-            checked="{{_fetchState(item)}}">
-            {{item.value}}
+            class="chip"
+            value="{{item.name}}"
+            checked="{{_fetchState(item.id, selectedItems.*)}}">
+            {{item.name}}
           </paper-checkbox>
         </template>
       </paper-dialog-scrollable>
@@ -164,7 +165,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
 
       properties: {
         /** The derived "label" of the currently selected item. */
-        selectedItemLabel: {
+        __selectedItemLabel: {
           type: String,
           notify: true
         },
@@ -198,7 +199,10 @@ the form. Populates the `paper-input` based on searchable selection of options u
         },
 
         /** Value of the component. */
-        selectedItemLabel: String,
+        __selectedItemLabel: {
+          type: String,
+          computed: '_setItemLabel(selectedItems, selectedItems.*)'
+        },
 
         /** Items that will be used to populate the options/chips. */
         chips: Array,
@@ -208,53 +212,26 @@ the form. Populates the `paper-input` based on searchable selection of options u
         _selectedChips: Array
       },
 
-      observers: [
-        '_setItemLabel(selectedItems, selectedItems.*)',
-        '_setSelectedItems(selectedItems)'
-      ],
-
       /** Triggers the selector field. */
       trigger() {
         if (this.disabled) return;
-        const {selectedItems} = this;
-        if (selectedItems && selectedItems.length > 0) {
-          const chips = this.querySelectorAll('.chip');
-          for (const chip of chips) {
-            chip.checked = this.selectedItems.includes(chip.value);
-          }
-        }
         this.$.dialog.open();
-      },
-
-      /** @override */
-      ready() {
-        this.state = {};
       },
 
       /**
        * set paper input label when there are preselected items, only on page load
        * @param {Array} selected pre selected items
+       * @returns {String}
        * @private
        */
       _setItemLabel(selected) {
+        this.state = {};
         const selectedArray = [];
         for(const item of selected) {
-          selectedArray.push(item.value);
+          this.state[item.id] = 1;
+          selectedArray.push(item.name);
         }
-        this.selectedItemLabel = selectedArray.join(', ');
-      },
-
-      /**
-       * set selection text when there are preselected items, only on page load
-       * @param {Array} selected pre selected items
-       * @private
-       */
-      _setSelectedItems(selected) {
-        const chips = [];
-        for (const item of selected) {
-          chips.push({value: item});
-        }
-        this._renderChips(chips);
+        return selectedArray.join(', ');
       },
 
       /**
@@ -280,7 +257,7 @@ the form. Populates the `paper-input` based on searchable selection of options u
           }
 
           val = val.toLowerCase();
-          item = item.value.toLowerCase();
+          item = item.name.toLowerCase();
           return (item && item.indexOf(val) !== -1);
         }.bind(this);
       },
@@ -292,14 +269,14 @@ the form. Populates the `paper-input` based on searchable selection of options u
        */
       _toggleItemState(e) {
         if (e.target.checked) {
-          this.state[e.target.value.id] = 1;
+          this.state[e.target.id] = 1;
         } else {
-          delete this.state[e.target.value.id];
+          delete this.state[e.target.id];
         }
       },
 
       /**
-       * @param {string} item Checkbox value.
+       * @param {Object} item Checkbox value.
        * @return {boolean} State of the checkbox.
        * @private
        */
@@ -312,45 +289,19 @@ the form. Populates the `paper-input` based on searchable selection of options u
        * @private
        */
       _updateValues() {
+        const selectedItems = [];
         const selectedChips = this.querySelectorAll('.chip[checked]');
-        this._renderChips(selectedChips);
-        this.selectedItems = [];
         for (const chip of selectedChips) {
-          this.push('selectedItems', chip.value);
+          selectedItems.push({
+            id: chip.id,
+            name: chip.value
+          });
         }
+        this.set('selectedItems', selectedItems);
         this.fire('item-updated');
       },
 
-      _isItemChecked(item) {
-        return this.selectedItems.includes(item);
-      },
-
-      /**
-       * Renders the information based on the selection.
-       * @param {Array} items Items to be used for rendering.
-       * @private
-       */
-      _renderChips(items) {
-        const totalItems = items.length;
-        if (totalItems === 0) return;
-        const leadClues = [];
-        for (const [index, item] of items.entries()) {
-          leadClues.push({
-            id: item.value.id,
-            name: item.value.value
-          });
-        }
-        this.set('_selectedChips', leadClues);
-      },
       _handleDeletedChip() {
-        this.selectedItems = [];
-        for (selectedChip of this._selectedChips) {
-          for (chip of this.chips) {
-            if (chip.value === selectedChip.name) {
-              this.push('selectedItems', chip);
-            }
-          }
-        }
         this.fire('item-updated');
       },
       /**

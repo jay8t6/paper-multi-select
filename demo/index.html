@@ -22,15 +22,19 @@
         <template is="dom-bind">
           <paper-multi-select
             chips='[
-              {"id": 1, "value": "Luffy"},
-              {"id": 2, "value": "Zoro"},
-              {"id": 3, "value": "Sanji"},
-              {"id": 4, "value": "Nami"},
-              {"id": 5, "value": "Ussop"},
-              {"id": 6, "value": "Robin"},
-              {"id": 7, "value": "Brook"},
-              {"id": 8, "value": "Chopper"},
-              {"id": 9, "value": "Franky"}]'
+              {"id": 1, "name": "Luffy"},
+              {"id": 2, "name": "Zoro"},
+              {"id": 3, "name": "Sanji"},
+              {"id": 4, "name": "Nami"},
+              {"id": 5, "name": "Ussop"},
+              {"id": 6, "name": "Robin"},
+              {"id": 7, "name": "Brook"},
+              {"id": 8, "name": "Chopper"},
+              {"id": 9, "name": "Franky"}]'
+            selected-items='[{"id": 2, "name": "Zoro"},
+            {"id": 3, "name": "Sanji"},
+            {"id": 4, "name": "Nami"},
+            {"id": 5, "name": "Ussop"}]'
             label="Favorite characters">
           </paper-multi-select>
         </template>
