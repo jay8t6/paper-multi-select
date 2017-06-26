@@ -24,6 +24,8 @@ the form. Populates the `paper-input` based on searchable selection of options u
 ----------------|-------------|----------
 `--paper-multi-select` | Mixin to style the host element | `{}`
 `--paper-multi-select-checkbox` | Mixin to style the checkbox | `{}`
+`--paper-multi-select-checkbox-first-child` | Mixin to style the first checkbox | `{}`
+`--paper-multi-select-checkbox-last-child` | Mixin to style the last checkbox | `{}`
 `--paper-multi-select-info` | Mixin to style the info container | `{}`
 `--paper-multi-select-disabled-text` | Mixin to style the disabled more text | `{}`
 `--paper-multi-select-dialog` | Mixin to style the dialog | `{}`
@@ -54,6 +56,14 @@ the form. Populates the `paper-input` based on searchable selection of options u
       --paper-checkbox-label-spacing: 0;
       --paper-checkbox-margin: 8px;
       @apply(--paper-multi-select-checkbox);
+    }
+
+    paper-checkbox:first-of-type {
+      @apply(--paper-multi-select-checkbox-first-child);
+    }
+
+    paper-checkbox:last-of-type {
+      @apply(--paper-multi-select-checkbox-last-child);
     }
 
     .info {
