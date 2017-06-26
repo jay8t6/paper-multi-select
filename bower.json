@@ -1,6 +1,6 @@
 {
   "name": "paper-multi-select",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Enables multiple selection from given set of items.",
   "main": "paper-multi-select.html",
   "license": "MIT",
